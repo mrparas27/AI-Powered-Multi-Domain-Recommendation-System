@@ -169,10 +169,20 @@ Render Deployment Steps
 Push the project to GitHub.
 Create a new PostgreSQL database on Render.
 Create a new Web Service on Render from the GitHub repository.
-Set the root directory to recommai if the repo root is the parent folder.
-Use Python environment or Docker. Docker is simplest because the project already includes a Dockerfile.
+If Render is using Docker, leave the root directory blank. The repository root has a Dockerfile that copies the recommai app correctly.
+If Render is using Python environment instead of Docker, set the root directory to recommai.
 Add production environment variables in Render.
-Run migrations after first deploy.
+Redeploy. The startup script runs migrations automatically.
+Recommended Render settings for Python environment:
+
+Root Directory: recommai
+Build Command: pip install -r requirements.txt
+Start Command: bash start.sh
+
+Recommended Render settings for Docker environment:
+
+Root Directory: leave blank
+Dockerfile Path: Dockerfile
 Production environment variables:
 
 DJANGO_SECRET_KEY=your-secure-production-secret
@@ -195,7 +205,7 @@ GITHUB_TOKEN=your-github-token
 For PostgreSQL, install the production database dependency:
 
 pip install -r requirements-postgres.txt
-If deploying with Docker, update the Docker build to install requirements-postgres.txt or add psycopg2-binary to the main production requirements.
+The main requirements.txt already includes the PostgreSQL dependency used by Render.
 
 Alternative Deployment Options
 Render: best one-place option for this app.

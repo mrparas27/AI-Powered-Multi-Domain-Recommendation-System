@@ -214,17 +214,24 @@ Render is a strong fit because this app is a Django server application that need
 1. Push the project to GitHub.
 2. Create a new PostgreSQL database on Render.
 3. Create a new Web Service on Render from the GitHub repository.
-4. Set the root directory to `recommai` if the repo root is the parent folder.
-5. Use Python environment or Docker. Docker is simplest because the project already includes a `Dockerfile`.
+4. If Render is using Docker, leave the root directory blank. The repository root now has a Dockerfile that copies the `recommai` app correctly.
+5. If Render is using the Python environment instead of Docker, set the root directory to `recommai`.
 6. Add production environment variables in Render.
-7. Run migrations after first deploy.
+7. Redeploy. The startup script runs migrations automatically.
 
-Recommended Render settings:
+Recommended Render settings for Python environment:
 
 ```text
 Root Directory: recommai
 Build Command: pip install -r requirements.txt
 Start Command: bash start.sh
+```
+
+Recommended Render settings for Docker environment:
+
+```text
+Root Directory: leave blank
+Dockerfile Path: Dockerfile
 ```
 
 Production environment variables:
@@ -311,7 +318,7 @@ Fix on Render:
 
 1. Create or attach a Render PostgreSQL database.
 2. Set `DATABASE_URL` to the PostgreSQL internal database URL.
-3. Set the Start Command to `bash start.sh`.
+3. If using Python environment, set the Start Command to `bash start.sh`. If using Docker, redeploy with the root `Dockerfile`.
 4. Redeploy latest commit.
 
 The `start.sh` script runs `python manage.py migrate --noinput` before starting Gunicorn, so Django auth tables such as `auth_user` are created automatically.
