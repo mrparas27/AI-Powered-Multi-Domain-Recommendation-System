@@ -2,6 +2,10 @@
  
 A production-ready Django web application that recommends movies, music, and jobs from one authenticated dashboard. The system combines local fallback datasets, external API integrations, content-based similarity, resume parsing, skill extraction, and role-aware job matching.
 
+Live Demo
+App: https://ai-powered-multi-domain-recommendation-wofc.onrender.com/
+Music Recommendation: https://ai-powered-multi-domain-recommendation-wofc.onrender.com/music/
+
 Features
 Secure signup, login, logout, and user dashboard.
 Movie recommendation by title, genre, overview, cast, director, and cosine similarity.
