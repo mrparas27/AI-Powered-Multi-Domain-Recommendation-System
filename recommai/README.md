@@ -241,7 +241,7 @@ DJANGO_SECRET_KEY=your-secure-production-secret
 DJANGO_DEBUG=False
 DJANGO_ALLOWED_HOSTS=your-render-domain.onrender.com
 CSRF_TRUSTED_ORIGINS=https://your-render-domain.onrender.com
-DATABASE_URL=your-render-postgres-url
+DATABASE_URL=postgresql://user:password@host:5432/database
 SECURE_SSL_REDIRECT=True
 SESSION_COOKIE_SECURE=True
 CSRF_COOKIE_SECURE=True
@@ -256,7 +256,7 @@ WEATHER_API_KEY=your-weather-api-key
 GITHUB_TOKEN=your-github-token
 ```
 
-Important: `DATABASE_URL` must be set to the Render PostgreSQL internal database URL. If it is missing, the app falls back to SQLite and signup/login can fail with `no such table: auth_user` after deployment.
+Important: `DATABASE_URL` must be set to the Render PostgreSQL **Internal Database URL** and it must start with `postgres://` or `postgresql://`. If it is missing or malformed, the app falls back to SQLite; that can run, but signup/login data will not be durable on Render.
 
 For your current Render URL, use:
 
@@ -317,7 +317,7 @@ This means migrations did not run on the deployed database, or Render is using S
 Fix on Render:
 
 1. Create or attach a Render PostgreSQL database.
-2. Set `DATABASE_URL` to the PostgreSQL internal database URL.
+2. Set `DATABASE_URL` to the PostgreSQL internal database URL. It must start with `postgres://` or `postgresql://`; do not paste only the host, database name, or a placeholder.
 3. If using Python environment, set the Start Command to `bash start.sh`. If using Docker, redeploy with the root `Dockerfile`.
 4. Redeploy latest commit.
 

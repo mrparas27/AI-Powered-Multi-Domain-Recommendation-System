@@ -189,7 +189,7 @@ DJANGO_SECRET_KEY=your-secure-production-secret
 DJANGO_DEBUG=False
 DJANGO_ALLOWED_HOSTS=your-render-domain.onrender.com
 CSRF_TRUSTED_ORIGINS=https://your-render-domain.onrender.com
-DATABASE_URL=your-render-postgres-url
+DATABASE_URL=postgresql://user:password@host:5432/database
 SECURE_SSL_REDIRECT=True
 SESSION_COOKIE_SECURE=True
 CSRF_COOKIE_SECURE=True
@@ -206,6 +206,8 @@ For PostgreSQL, install the production database dependency:
 
 pip install -r requirements-postgres.txt
 The main requirements.txt already includes the PostgreSQL dependency used by Render.
+
+Important: `DATABASE_URL` must be the Render PostgreSQL Internal Database URL and must start with `postgres://` or `postgresql://`. Do not paste only the host, database name, or a placeholder value.
 
 Alternative Deployment Options
 Render: best one-place option for this app.

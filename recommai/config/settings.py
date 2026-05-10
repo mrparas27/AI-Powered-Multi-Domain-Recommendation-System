@@ -95,17 +95,21 @@ TEMPLATES = [
 WSGI_APPLICATION = "config.wsgi.application"
 ASGI_APPLICATION = "config.asgi.application"
 
-if env("DATABASE_URL"):
-    import dj_database_url
-
-    DATABASES = {"default": dj_database_url.parse(env("DATABASE_URL"), conn_max_age=600)}
-else:
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": BASE_DIR / "db.sqlite3",
-        }
+DATABASE_URL = env("DATABASE_URL").strip()
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
     }
+}
+
+if DATABASE_URL:
+    try:
+        import dj_database_url
+
+        DATABASES = {"default": dj_database_url.parse(DATABASE_URL, conn_max_age=600)}
+    except ValueError as exc:
+        print(f"Warning: Ignoring invalid DATABASE_URL: {exc}")
 
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
