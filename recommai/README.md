@@ -223,8 +223,8 @@ Recommended Render settings:
 
 ```text
 Root Directory: recommai
-Build Command: pip install -r requirements.txt && python manage.py collectstatic --noinput
-Start Command: gunicorn config.wsgi:application --bind 0.0.0.0:$PORT
+Build Command: pip install -r requirements.txt
+Start Command: bash start.sh
 ```
 
 Production environment variables:
@@ -248,6 +248,8 @@ SERPAPI_API_KEY=your-serpapi-key
 WEATHER_API_KEY=your-weather-api-key
 GITHUB_TOKEN=your-github-token
 ```
+
+Important: `DATABASE_URL` must be set to the Render PostgreSQL internal database URL. If it is missing, the app falls back to SQLite and signup/login can fail with `no such table: auth_user` after deployment.
 
 For your current Render URL, use:
 
@@ -300,6 +302,19 @@ If deploying with Docker, update the Docker build to install `requirements-postg
 - Vercel: not recommended as the main host for this project because this is a full Django server app, not a frontend-only app.
 
 ## Common Issues
+
+### Signup fails with no such table: auth_user
+
+This means migrations did not run on the deployed database, or Render is using SQLite without an initialized `db.sqlite3`.
+
+Fix on Render:
+
+1. Create or attach a Render PostgreSQL database.
+2. Set `DATABASE_URL` to the PostgreSQL internal database URL.
+3. Set the Start Command to `bash start.sh`.
+4. Redeploy latest commit.
+
+The `start.sh` script runs `python manage.py migrate --noinput` before starting Gunicorn, so Django auth tables such as `auth_user` are created automatically.
 
 ### TMDB key is correct but app shows fallback results
 
