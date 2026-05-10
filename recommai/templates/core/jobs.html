@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block title %}Jobs - RecommAI{% endblock %}
+{% block content %}
+<section class="page-head">
+  <p class="eyebrow">Resume NLP + India job matching</p>
+  <h1>Job matching</h1>
+  <form class="search"><input name="q" value="{{ query }}" placeholder="Search skills or roles"><button>Search</button></form>
+</section>
+<section class="live-workbench">
+  <div class="section-title">
+    <h2>Live Job Search</h2>
+    <p>Uses configured job APIs when available and falls back to local India-focused roles.</p>
+  </div>
+  <form class="live-form" data-live-form data-endpoint="/api/v1/live/jobs/search/" data-kind="job">
+    <input name="q" placeholder="Try: Python NLP, React, cloud devops" required>
+    <input name="location" placeholder="Location: Bengaluru, Pune, Remote">
+    <button type="submit">Search Live</button>
+  </form>
+  <div class="results" data-live-results></div>
+</section>
+<section class="page-head">
+  <h2>Resume Parsing Job Recommendations</h2>
+  <form method="post" enctype="multipart/form-data" class="resume-form">
+    {% csrf_token %}
+    <textarea name="resume_text" rows="8" placeholder="Paste resume text here: skills, experience, projects, tools, domain...">{{ resume_text }}</textarea>
+    <div class="file-row">
+      <input type="file" name="resume_file" accept=".txt,.pdf,.docx">
+    </div>
+    <div class="actions">
+      <button type="submit">Parse Resume & Recommend Jobs</button>
+    </div>
+  </form>
+  {% if resume_file_error %}
+    <p class="meta">{{ resume_file_error }}</p>
+  {% endif %}
+  {% if extracted_skills %}
+    <p class="meta">Extracted skills: {{ extracted_skills|join:", " }}</p>
+  {% endif %}
+</section>
+{% if suggested_roles %}
+<section class="page-head">
+  <h2>Roles You Can Apply For</h2>
+  <p class="meta">Based on the skills extracted from your resume.</p>
+</section>
+<section class="cards compact-cards">
+  {% for role in suggested_roles %}
+    <article class="card">
+      <h2>{{ role.title }}</h2>
+      <p>Matched: {{ role.matched|join:", " }}</p>
+      {% if role.missing %}<p class="meta">Improve with: {{ role.missing|join:", " }}</p>{% endif %}
+      <span class="score">{{ role.score }}</span>
+    </article>
+  {% endfor %}
+</section>
+{% endif %}
+{% if resume_matches %}
+<section class="cards">
+  {% for row in resume_matches %}
+    <article class="card">
+      {% if row.job.company.logo_url %}<img class="company-logo" src="{{ row.job.company.logo_url }}" alt="{{ row.job.company.name }} logo">{% endif %}
+      <h2>{{ row.job.title }}</h2>
+      <p class="meta">{{ row.job.company.name }} &middot; {{ row.job.location }} &middot; {{ row.job.job_type }}</p>
+      <p>{{ row.job.skills }}</p>
+      {% if row.job.apply_url %}<a class="button" href="{{ row.job.apply_url }}" target="_blank" rel="noreferrer">Apply Now</a>{% endif %}
+      <span class="score">{{ row.score }}</span>
+    </article>
+  {% endfor %}
+</section>
+{% endif %}
+{% if related_jobs %}
+<section class="page-head">
+  <h2>Similar Jobs</h2>
+  <p class="meta">These are similar to your top matched role.</p>
+</section>
+<section class="cards">
+  {% for row in related_jobs %}
+    <article class="card">
+      {% if row.job.company.logo_url %}<img class="company-logo" src="{{ row.job.company.logo_url }}" alt="{{ row.job.company.name }} logo">{% endif %}
+      <h2>{{ row.job.title }}</h2>
+      <p class="meta">{{ row.job.company.name }} &middot; {{ row.job.location }}</p>
+      <p>{{ row.job.skills }}</p>
+      {% if row.job.apply_url %}<a class="button" href="{{ row.job.apply_url }}" target="_blank" rel="noreferrer">Apply Now</a>{% endif %}
+      <span class="score">{{ row.score }}</span>
+    </article>
+  {% endfor %}
+</section>
+{% endif %}
+<section class="cards">
+  {% for job in jobs %}
+    <article class="card">
+      {% if job.company.logo_url %}<img class="company-logo" src="{{ job.company.logo_url }}" alt="{{ job.company.name }} logo">{% endif %}
+      <h2>{{ job.title }}</h2>
+      <p class="meta">{{ job.company.name }} &middot; {{ job.location }} &middot; {{ job.job_type }}</p>
+      <p>{{ job.skills }}</p>
+      {% if job.apply_url %}<a class="button" href="{{ job.apply_url }}" target="_blank" rel="noreferrer">Apply Now</a>{% endif %}
+      <span class="score">{{ job.salary_min|default:"" }}</span>
+    </article>
+  {% empty %}
+    {% if query %}
+      <p>No job results found for "{{ query }}". Try role, skill, or location keywords.</p>
+    {% else %}
+      <p>No jobs in catalog yet. Run <code>python manage.py generate_catalog --count 10000</code>.</p>
+    {% endif %}
+  {% endfor %}
+</section>
+<section class="page-head">
+  <div class="actions">
+    {% if has_prev %}<a class="button" href="?q={{ query }}&page={{ page|add:-1 }}">Previous</a>{% endif %}
+    <span class="meta">Page {{ page }}</span>
+    {% if has_next %}<a class="button" href="?q={{ query }}&page={{ page|add:1 }}">Next</a>{% endif %}
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Music - RecommAI{% endblock %}
+{% block content %}
+<section class="page-head">
+  <p class="eyebrow">Mood-aware Bollywood + global tracks</p>
+  <h1>Music discovery</h1>
+  <form class="search"><input name="q" value="{{ query }}" placeholder="Search songs, artists, genres"><button>Search</button></form>
+</section>
+<section class="live-workbench">
+  <div class="section-title">
+    <h2>Live Music Search</h2>
+    <p>Uses Spotify when credentials exist and falls back to Bollywood and local mood data.</p>
+  </div>
+  <form class="live-form" data-live-form data-endpoint="/api/v1/live/music/search/" data-kind="music">
+    <input name="q" placeholder="Try: Arijit Singh, party bollywood, calm focus" required>
+    <input name="limit" value="10" inputmode="numeric">
+    <button type="submit">Search Live</button>
+  </form>
+  <div class="results" data-live-results></div>
+</section>
+<section class="page-head">
+  <h2>Mood-Based Music Recommendations</h2>
+  <form class="search">
+    <input name="mood" value="{{ mood }}" placeholder="Try: energetic, calm, dramatic, uplifting">
+    <input value="Recommends songs by mood and genre mood match" readonly>
+    <button>Recommend By Mood</button>
+  </form>
+</section>
+{% if mood_recommendations %}
+<section class="cards">
+  {% for song in mood_recommendations %}
+    <article class="card">
+      {% if song.image_url %}<img class="thumb" src="{{ song.image_url }}" alt="{{ song.title }} cover">{% endif %}
+      <h2>{{ song.title }}</h2>
+      <p class="meta">{{ song.artist.name }} &middot; {{ song.genres }}</p>
+      <p>Mood {{ song.mood }} &middot; Energy {{ song.energy }} &middot; Danceability {{ song.danceability }}</p>
+      <span class="score">{{ song.popularity }}</span>
+    </article>
+  {% endfor %}
+</section>
+{% endif %}
+<section class="cards">
+  {% for song in songs %}
+    <article class="card">
+      {% if song.image_url %}<img class="thumb" src="{{ song.image_url }}" alt="{{ song.title }} cover">{% endif %}
+      <h2>{{ song.title }}</h2>
+      <p class="meta">{{ song.artist.name }} &middot; {{ song.genres }}</p>
+      <p>Energy {{ song.energy }} &middot; Danceability {{ song.danceability }} &middot; Mood {{ song.mood }}</p>
+      <span class="score">{{ song.popularity }}</span>
+    </article>
+  {% empty %}
+    {% if query %}
+      <p>No music results found for "{{ query }}". Try artist, genre, or mood keywords.</p>
+    {% else %}
+      <p>No songs in catalog yet. Run <code>python manage.py generate_catalog --count 10000</code>.</p>
+    {% endif %}
+  {% endfor %}
+</section>
+<section class="page-head">
+  <div class="actions">
+    {% if has_prev %}<a class="button" href="?q={{ query }}&page={{ page|add:-1 }}">Previous</a>{% endif %}
+    <span class="meta">Page {{ page }}</span>
+    {% if has_next %}<a class="button" href="?q={{ query }}&page={{ page|add:1 }}">Next</a>{% endif %}
+  </div>
+</section>
+{% endblock %}

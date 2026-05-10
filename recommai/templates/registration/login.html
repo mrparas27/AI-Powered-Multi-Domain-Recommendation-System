@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Login - RecommAI{% endblock %}
+{% block content %}
+<section class="auth-shell">
+  <div class="auth-copy">
+    <p class="eyebrow">AI Multi-Domain Recommender</p>
+    <h1>Sign in to your recommendation studio.</h1>
+    <p>Parse resumes for India-focused job matches, search similar Hollywood and Bollywood movies, and generate mood-based music picks with live API fallback.</p>
+    <div class="auth-metrics">
+      <span>Resume NLP</span>
+      <span>Movie Similarity</span>
+      <span>Mood Music</span>
+    </div>
+  </div>
+  <div class="auth-panel">
+    <h2>Login</h2>
+    <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button class="button primary" type="submit">Login</button>
+    </form>
+    <p class="meta">New here? <a href="{% url 'signup' %}">Create an account</a></p>
+  </div>
+</section>
+{% endblock %}

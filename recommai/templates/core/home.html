@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}RecommAI - Multi-Domain Recommendations{% endblock %}
+{% block content %}
+<section class="hero">
+  <div class="hero-copy">
+    <p class="eyebrow">AI recommendations across entertainment and careers</p>
+    <h1>Find the next movie, song, or opportunity with one recommendation engine.</h1>
+    <p>RecommAI runs fully local now with a large in-app catalog and smart content-based recommendations.</p>
+    <div class="actions">
+      <a class="button primary" href="{% url 'movies' %}">Explore Movies</a>
+      <a class="button" href="/api/v1/health/">API Health</a>
+    </div>
+  </div>
+  <div class="stats-panel">
+    <div><strong>{{ movie_count }}</strong><span>Movies</span></div>
+    <div><strong>{{ song_count }}</strong><span>Songs</span></div>
+    <div><strong>{{ job_count }}</strong><span>Jobs</span></div>
+  </div>
+</section>
+<section class="toolband">
+  <div class="section-title">
+    <h2>Recommendation Engine</h2>
+    <p>Local AI-style matching over your movie, music, and job catalog.</p>
+  </div>
+  <form class="recommend-form" data-recommend-form>
+    <select name="domain">
+      <option value="movies">Movies</option>
+      <option value="music">Music</option>
+      <option value="jobs">Jobs</option>
+    </select>
+    <input name="q" placeholder="Try: sci-fi dream thriller, energetic pop, Python NLP remote">
+    <button type="submit">Recommend</button>
+  </form>
+  <div class="results" data-results></div>
+</section>
+<section class="toolband">
+  <div class="section-title">
+    <h2>Browse Domains</h2>
+    <p>Explore full catalogs and refine by search keywords in each domain.</p>
+  </div>
+  <div class="actions">
+    <a class="button" href="{% url 'movies' %}?q=thriller">Movie Discovery</a>
+    <a class="button" href="{% url 'music' %}?q=energetic">Music Discovery</a>
+    <a class="button" href="{% url 'jobs' %}?q=python">Job Matching</a>
+  </div>
+</section>
+{% endblock %}

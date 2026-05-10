@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Sign Up - RecommAI{% endblock %}
+{% block content %}
+<section class="auth-shell">
+  <div class="auth-copy">
+    <p class="eyebrow">Start with a secure account</p>
+    <h1>Create your RecommAI workspace.</h1>
+    <p>Your app opens only after signup or login, keeping recommendation history and resume matching tied to your session.</p>
+    <div class="auth-metrics">
+      <span>Jobs India</span>
+      <span>Bollywood Music</span>
+      <span>Fallback Catalogs</span>
+    </div>
+  </div>
+  <div class="auth-panel">
+    <h2>Create account</h2>
+    <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button class="button primary" type="submit">Sign Up</button>
+    </form>
+    <p class="meta">Already have an account? <a href="{% url 'login' %}">Login</a></p>
+  </div>
+</section>
+{% endblock %}

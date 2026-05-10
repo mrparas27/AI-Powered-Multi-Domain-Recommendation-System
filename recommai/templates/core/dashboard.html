@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - RecommAI{% endblock %}
+{% block content %}
+<section class="page-head">
+  <p class="eyebrow">Welcome, {{ user.username }}</p>
+  <h1>Your AI recommendation workspace</h1>
+  <p>Choose a domain, run live or local matching, and keep your recent recommendation activity in one place.</p>
+  <div class="actions">
+    <a class="button primary" href="{% url 'jobs' %}">Parse Resume</a>
+    <a class="button" href="{% url 'movies' %}">Find Similar Movies</a>
+    <a class="button" href="{% url 'music' %}">Mood Music</a>
+  </div>
+</section>
+<section class="grid three">
+  <div class="panel stat-card"><h2>Catalog Size</h2><p>Movies <span>{{ movie_count }}</span></p><p>Songs <span>{{ song_count }}</span></p><p>Jobs <span>{{ job_count }}</span></p></div>
+  <div class="panel"><h2>Profile</h2><p>Username <span>{{ user.username }}</span></p><p>Domains <span>{{ user_profile.preferred_domains|default:"movies, music, jobs" }}</span></p><p>Skills <span>{{ user_profile.skills|default:"Add through resume parsing" }}</span></p></div>
+  <div class="panel"><h2>Recent Recommendations</h2>{% for event in recent_events %}<p>{{ event.domain }}: {{ event.query|truncatechars:22 }} <span>{{ event.result_count }}</span></p>{% empty %}<p>No recommendation activity yet <span>0</span></p>{% endfor %}</div>
+</section>
+<section class="grid three">
+  <div class="panel"><h2>Movies</h2>{% for item in movies %}<p>{{ item.title }} <span>{{ item.rating }}</span></p>{% endfor %}</div>
+  <div class="panel"><h2>Music</h2>{% for item in songs %}<p>{{ item.title }} <span>{{ item.artist.name }}</span></p>{% endfor %}</div>
+  <div class="panel"><h2>Jobs</h2>{% for item in jobs %}<p>{{ item.title }} <span>{{ item.company.name }}</span></p>{% endfor %}</div>
+</section>
+{% endblock %}

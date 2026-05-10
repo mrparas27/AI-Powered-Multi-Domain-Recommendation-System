@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block title %}Movies - RecommAI{% endblock %}
+{% block content %}
+<section class="page-head">
+  <p class="eyebrow">Hollywood + Bollywood catalog</p>
+  <h1>Movie discovery</h1>
+  <form class="search"><input name="q" value="{{ query }}" placeholder="Search title, genre, director, story"><button>Search</button></form>
+</section>
+<section class="live-workbench">
+  <div class="section-title">
+    <h2>Live Movie Search</h2>
+    <p>Uses TMDB first, then a poster-backed movie artwork provider if TMDB is unreachable, and finally the local curated catalog.</p>
+  </div>
+  <form class="live-form" data-live-form data-endpoint="/api/v1/live/movies/search/" data-kind="movie">
+    <input name="q" placeholder="Try: Dangal, Inception, sci-fi thriller" required>
+    <input name="year" placeholder="Optional year">
+    <button type="submit">Search Live</button>
+  </form>
+  <div class="results" data-live-results></div>
+</section>
+<section class="page-head">
+  <h2>Content-Based Similar Movies (Cosine Similarity)</h2>
+  <form class="search similarity-search">
+    <input name="movie_title" value="{{ movie_title }}" placeholder="Type movie name, e.g. 3 Idiots, Dangal, Inception">
+    <button>Find Similar</button>
+  </form>
+  <form class="search">
+    <select name="movie_id">
+      <option value="">Choose a movie title</option>
+      {% for option in all_movies %}
+        <option value="{{ option.id }}" {% if selected_movie and selected_movie.id == option.id %}selected{% endif %}>{{ option.title }}</option>
+      {% endfor %}
+    </select>
+    <input value="Uses title + overview + genres + cast + director" readonly>
+    <button>Find Similar</button>
+  </form>
+  {% if selected_movie %}
+    <p class="meta">Showing similar recommendations for {{ selected_movie.title }}.</p>
+  {% endif %}
+</section>
+{% if selected_movie %}
+<section class="cards featured-selection">
+  <article class="card movie-card">
+    <div class="poster-frame">
+      {% if selected_movie.poster_url %}
+        <img class="poster" src="{{ selected_movie.poster_url }}" alt="{{ selected_movie.title }} poster">
+      {% else %}
+        <div class="poster-placeholder"><span>{{ selected_movie.title }}</span></div>
+      {% endif %}
+    </div>
+    <h2>{{ selected_movie.title }}</h2>
+    <p class="meta">{{ selected_movie.genres }}{% if selected_movie.release_year %} &middot; {{ selected_movie.release_year }}{% endif %}</p>
+    <p>{{ selected_movie.overview|truncatechars:180 }}</p>
+  </article>
+</section>
+{% endif %}
+{% if similar_movies %}
+<section class="cards">
+  {% for row in similar_movies %}
+    <article class="card movie-card">
+      <div class="poster-frame">
+        {% if row.movie.poster_url %}
+          <img class="poster" src="{{ row.movie.poster_url }}" alt="{{ row.movie.title }} poster">
+        {% else %}
+          <div class="poster-placeholder"><span>{{ row.movie.title }}</span></div>
+        {% endif %}
+      </div>
+      <h2>{{ row.movie.title }}</h2>
+      <p class="meta">{{ row.movie.genres }}{% if row.movie.release_year %} &middot; {{ row.movie.release_year }}{% endif %}</p>
+      <p>{{ row.movie.overview|truncatechars:140 }}</p>
+      <span class="score">{{ row.score }}</span>
+    </article>
+  {% endfor %}
+</section>
+{% endif %}
+<section class="cards">
+  {% for movie in movies %}
+    <article class="card movie-card">
+      <div class="poster-frame">
+        {% if movie.poster_url %}
+          <img class="poster" src="{{ movie.poster_url }}" alt="{{ movie.title }} poster">
+        {% else %}
+          <div class="poster-placeholder"><span>{{ movie.title }}</span></div>
+        {% endif %}
+      </div>
+      <h2>{{ movie.title }}</h2>
+      <p class="meta">{{ movie.genres }}{% if movie.release_year %} &middot; {{ movie.release_year }}{% endif %}</p>
+      <p>{{ movie.overview|truncatechars:150 }}</p>
+      <span class="score">{{ movie.rating }}</span>
+    </article>
+  {% empty %}
+    {% if query %}
+      <p>No movie results found for "{{ query }}". Try another keyword.</p>
+    {% else %}
+      <p>No movies in catalog yet. Run <code>python manage.py generate_catalog --count 10000</code>.</p>
+    {% endif %}
+  {% endfor %}
+</section>
+<section class="page-head">
+  <div class="actions">
+    {% if has_prev %}<a class="button" href="?q={{ query }}&page={{ page|add:-1 }}">Previous</a>{% endif %}
+    <span class="meta">Page {{ page }}</span>
+    {% if has_next %}<a class="button" href="?q={{ query }}&page={{ page|add:1 }}">Next</a>{% endif %}
+  </div>
+</section>
+{% endblock %}
