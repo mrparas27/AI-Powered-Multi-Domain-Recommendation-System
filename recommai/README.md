@@ -241,6 +241,15 @@ WEATHER_API_KEY=your-weather-api-key
 GITHUB_TOKEN=your-github-token
 ```
 
+For your current Render URL, use:
+
+```env
+DJANGO_ALLOWED_HOSTS=ai-powered-multi-domain-recommendation-wofc.onrender.com
+CSRF_TRUSTED_ORIGINS=https://ai-powered-multi-domain-recommendation-wofc.onrender.com
+```
+
+Render also provides `RENDER_EXTERNAL_HOSTNAME`; the app automatically accepts that hostname when it is present.
+
 For PostgreSQL, install the production database dependency:
 
 ```powershell
