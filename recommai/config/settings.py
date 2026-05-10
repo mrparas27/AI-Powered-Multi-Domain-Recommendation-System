@@ -1,5 +1,6 @@
 from pathlib import Path
 import os
+from urllib.parse import urlparse
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -27,6 +28,15 @@ def env_bool(name, default=False):
     return value.lower() in {"1", "true", "yes", "on"}
 
 
+def env_int(name, default):
+    value = env(name, str(default)).strip()
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        print(f"Warning: Invalid integer for {name}={value!r}; using {default}.")
+        return default
+
+
 SECRET_KEY = env("DJANGO_SECRET_KEY", "dev-only-change-me")
 DEBUG = env_bool("DJANGO_DEBUG", False)
 
@@ -35,16 +45,58 @@ def env_list(name, default=""):
     return [item.strip() for item in env(name, default).split(",") if item.strip()]
 
 
-ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1")
+def unique_list(items):
+    seen = set()
+    values = []
+    for item in items:
+        if item and item not in seen:
+            values.append(item)
+            seen.add(item)
+    return values
+
+
+def normalize_allowed_host(value):
+    value = value.strip()
+    if not value:
+        return ""
+    if value == "*" or value.startswith("."):
+        return value
+    if "://" in value:
+        value = urlparse(value).netloc
+    if "/" in value or " " in value:
+        print(f"Warning: Ignoring invalid DJANGO_ALLOWED_HOSTS value: {value!r}")
+        return ""
+    if ":" in value and not value.startswith("["):
+        value = value.split(":", 1)[0]
+    return value
+
+
+def normalize_csrf_origin(value):
+    value = value.strip().rstrip("/")
+    parsed = urlparse(value)
+    if parsed.scheme not in {"http", "https"} or not parsed.netloc:
+        print(f"Warning: Ignoring invalid CSRF_TRUSTED_ORIGINS value: {value!r}")
+        return ""
+    return f"{parsed.scheme}://{parsed.netloc}"
+
+
+ALLOWED_HOSTS = unique_list(
+    normalize_allowed_host(host)
+    for host in env_list("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1")
+)
 render_hostname = env("RENDER_EXTERNAL_HOSTNAME")
-if render_hostname and render_hostname not in ALLOWED_HOSTS:
-    ALLOWED_HOSTS.append(render_hostname)
+render_host = normalize_allowed_host(render_hostname)
+if render_host and render_host not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append(render_host)
 if not DEBUG and ".onrender.com" not in ALLOWED_HOSTS:
     ALLOWED_HOSTS.append(".onrender.com")
 
-CSRF_TRUSTED_ORIGINS = env_list("CSRF_TRUSTED_ORIGINS")
-if render_hostname:
-    render_origin = f"https://{render_hostname}"
+CSRF_TRUSTED_ORIGINS = unique_list(
+    normalize_csrf_origin(origin)
+    for origin in env_list("CSRF_TRUSTED_ORIGINS")
+)
+if render_host:
+    render_origin = f"https://{render_host}"
     if render_origin not in CSRF_TRUSTED_ORIGINS:
         CSRF_TRUSTED_ORIGINS.append(render_origin)
 
@@ -148,7 +200,7 @@ CSRF_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SECURE = env_bool("SESSION_COOKIE_SECURE", not DEBUG)
 CSRF_COOKIE_SECURE = env_bool("CSRF_COOKIE_SECURE", not DEBUG)
 SECURE_SSL_REDIRECT = env_bool("SECURE_SSL_REDIRECT", not DEBUG)
-SECURE_HSTS_SECONDS = int(env("SECURE_HSTS_SECONDS", "0" if DEBUG else "31536000"))
+SECURE_HSTS_SECONDS = env_int("SECURE_HSTS_SECONDS", 0 if DEBUG else 31536000)
 SECURE_HSTS_INCLUDE_SUBDOMAINS = env_bool("SECURE_HSTS_INCLUDE_SUBDOMAINS", not DEBUG)
 SECURE_HSTS_PRELOAD = env_bool("SECURE_HSTS_PRELOAD", not DEBUG)
 
@@ -160,5 +212,5 @@ EXTERNAL_APIS = {
     "GITHUB_TOKEN": env("GITHUB_TOKEN"),
     "SERPAPI_API_KEY": env("SERPAPI_API_KEY"),
     "WEATHER_API_KEY": env("WEATHER_API_KEY"),
-    "CACHE_TTL_SECONDS": int(env("EXTERNAL_CACHE_TTL_SECONDS", "3600")),
+    "CACHE_TTL_SECONDS": env_int("EXTERNAL_CACHE_TTL_SECONDS", 3600),
 }

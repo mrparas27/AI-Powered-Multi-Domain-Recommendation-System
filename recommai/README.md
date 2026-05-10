@@ -263,9 +263,17 @@ For your current Render URL, use:
 ```env
 DJANGO_ALLOWED_HOSTS=ai-powered-multi-domain-recommendation-wofc.onrender.com
 CSRF_TRUSTED_ORIGINS=https://ai-powered-multi-domain-recommendation-wofc.onrender.com
+TIME_ZONE=Asia/Kolkata
 ```
 
 Render also provides `RENDER_EXTERNAL_HOSTNAME`; the app automatically accepts that hostname when it is present.
+
+Do not put `Asia/Kolkata` in `CSRF_TRUSTED_ORIGINS`. `CSRF_TRUSTED_ORIGINS` only accepts full origins starting with `http://` or `https://`. The app ignores malformed CSRF values defensively, but the correct Render setup is still:
+
+```env
+CSRF_TRUSTED_ORIGINS=https://ai-powered-multi-domain-recommendation-wofc.onrender.com
+TIME_ZONE=Asia/Kolkata
+```
 
 ### Fix Render DisallowedHost Error
 
@@ -281,7 +289,10 @@ Add these environment variables in Render, then redeploy:
 DJANGO_DEBUG=False
 DJANGO_ALLOWED_HOSTS=ai-powered-multi-domain-recommendation-wofc.onrender.com
 CSRF_TRUSTED_ORIGINS=https://ai-powered-multi-domain-recommendation-wofc.onrender.com
+TIME_ZONE=Asia/Kolkata
 ```
+
+If Render currently has `CSRF_TRUSTED_ORIGINS=Asia/Kolkata`, replace it with the HTTPS URL above.
 
 The app also supports Render auto-detection through `RENDER_EXTERNAL_HOSTNAME`, so future Render domains are accepted automatically when Render provides that variable.
 

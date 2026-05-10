@@ -190,6 +190,7 @@ DJANGO_DEBUG=False
 DJANGO_ALLOWED_HOSTS=your-render-domain.onrender.com
 CSRF_TRUSTED_ORIGINS=https://your-render-domain.onrender.com
 DATABASE_URL=postgresql://user:password@host:5432/database
+TIME_ZONE=Asia/Kolkata
 SECURE_SSL_REDIRECT=True
 SESSION_COOKIE_SECURE=True
 CSRF_COOKIE_SECURE=True
@@ -208,6 +209,8 @@ pip install -r requirements-postgres.txt
 The main requirements.txt already includes the PostgreSQL dependency used by Render.
 
 Important: `DATABASE_URL` must be the Render PostgreSQL Internal Database URL and must start with `postgres://` or `postgresql://`. Do not paste only the host, database name, or a placeholder value.
+
+Important: `CSRF_TRUSTED_ORIGINS` must start with `https://`. Do not put `Asia/Kolkata` there; use `TIME_ZONE=Asia/Kolkata` for the timezone.
 
 Alternative Deployment Options
 Render: best one-place option for this app.
