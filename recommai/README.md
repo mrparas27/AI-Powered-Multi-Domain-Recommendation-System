@@ -219,6 +219,14 @@ Render is a strong fit because this app is a Django server application that need
 6. Add production environment variables in Render.
 7. Run migrations after first deploy.
 
+Recommended Render settings:
+
+```text
+Root Directory: recommai
+Build Command: pip install -r requirements.txt && python manage.py collectstatic --noinput
+Start Command: gunicorn config.wsgi:application --bind 0.0.0.0:$PORT
+```
+
 Production environment variables:
 
 ```env
@@ -249,6 +257,32 @@ CSRF_TRUSTED_ORIGINS=https://ai-powered-multi-domain-recommendation-wofc.onrende
 ```
 
 Render also provides `RENDER_EXTERNAL_HOSTNAME`; the app automatically accepts that hostname when it is present.
+
+### Fix Render DisallowedHost Error
+
+If Render shows this error:
+
+```text
+Invalid HTTP_HOST header: 'your-app.onrender.com'. You may need to add 'your-app.onrender.com' to ALLOWED_HOSTS.
+```
+
+Add these environment variables in Render, then redeploy:
+
+```env
+DJANGO_DEBUG=False
+DJANGO_ALLOWED_HOSTS=ai-powered-multi-domain-recommendation-wofc.onrender.com
+CSRF_TRUSTED_ORIGINS=https://ai-powered-multi-domain-recommendation-wofc.onrender.com
+```
+
+The app also supports Render auto-detection through `RENDER_EXTERNAL_HOSTNAME`, so future Render domains are accepted automatically when Render provides that variable.
+
+After changing environment variables in Render:
+
+1. Open the Render web service dashboard.
+2. Go to Environment.
+3. Add or update the variables above.
+4. Click Manual Deploy.
+5. Choose Deploy latest commit.
 
 For PostgreSQL, install the production database dependency:
 
